@@ -1,7 +1,9 @@
-import sys
+import binascii
 import socket
 from struct import *
-import binascii
+import sys
+import threading
+import time
 
 def udp_server():
     try:
@@ -12,12 +14,12 @@ def udp_server():
 
 #server_adress = ('169.254.161.102', 13400)
     server_adress = ('192.168.0.11', 13400)
-    print("Starting capture on %s port %s" % server_adress)
+    print("Starting UDP server on %s port %s" % server_adress)
     s.bind(server_adress)
     while True:
         packet, source = s.recvfrom(4096)
 
-        print("Incoming message from ip: %s srcport: %s" % (source[0], source[1]))
+        print("Incoming DoIP message over UDP from ip: %s srcport: %s" % (source[0], source[1]))
         data = binascii.hexlify(packet)
         print(data)
         print(f"Protocol version: {data[0:2]}")
@@ -35,10 +37,12 @@ def udp_server():
                 print(f"Sent {sent} bytes")
 
         elif(int(data[4:8]) == 8001):
+                print("Payload Type: Diagnostic message")
                 reply = b'02fd8002000000051a01e80100'
                 reply = binascii.unhexlify(reply)
                 sent = s.sendto(reply, source)
-                print("Payload Type: Diagnostic message")
+                print(reply)
+                print(f"Sent {sent} bytes")
 
 
         print("====================================")
@@ -52,19 +56,19 @@ def tcp_server():
     sock.listen(1)
 
     while True:
-        print("listening...")
         conn, client_address = sock.accept()
 
         try:
-            print("connection from %s - %s " % client_address)
+        #    print("connection from %s - %s " % client_address)
 
             while True:
                 data = conn.recv(16)
-                print("received %s" %data)
 
                 data = binascii.hexlify(data)
-                print(data)
-                print(f"Protocol version: {data[0:2]}")
+                if(not data):
+        #            print("Connection closed")
+                    break   #connection close, break receive loop
+                print("received DoIP message over TCP: %s" %data)
                 if(int(data[0:2]) == 2):
                     print("Version is 2!")
 
@@ -79,19 +83,23 @@ def tcp_server():
                         print(f"Sent {sent} bytes")
 
                 elif(int(data[4:8]) == 8001):
+                        print("Payload Type: Diagnostic message")
                         reply = b'02fd8002000000051a01e80100'
                         reply = binascii.unhexlify(reply)
-                        sent = conn.sendall(reply)
-                        print("Payload Type: Diagnostic message")
+                        sent = conn.send(reply)
+                        print(reply)
+                        print(f"Sent {sent} bytes")
 
 
                 print("====================================")
-                if data:
-                    conn.sendall(data)
-                else:
-                    break
         finally:
             conn.close()
 
 
-tcp_server()
+#tcp_server()
+t1 = threading.Thread(target=tcp_server)
+t2 = threading.Thread(target=udp_server)
+t1.start()
+t2.start()
+t1.join()
+t2.join()

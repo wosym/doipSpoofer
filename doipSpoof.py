@@ -1,7 +1,6 @@
 import threading
 
 from comms import *
-from doip_util import *
 
 
 

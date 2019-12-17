@@ -1,0 +1,2 @@
+class VehicleConfig():
+    VID = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'

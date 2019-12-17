@@ -43,6 +43,7 @@ def udp_server():
                 print(f"Sent {sent} bytes")
 
         print_doip_message(packet)
+        process_doip_reply(packet)
         print("====================================")
 
 def tcp_server():

@@ -4,6 +4,33 @@ from struct import *
 import sys
 import threading
 import time
+from scapy.all import *
+from doip import *
+from scapy.contrib.automotive.uds import *
+
+
+def decode_doip_message(msg):
+    try:
+        DoIPRawPacket(msg).show()
+        uds_payload = DoIPRawPacket(msg).payload_content[4:]
+        print(uds_payload)
+        UDS(uds_payload).show()
+    except TypeError:
+        print("typeError")
+    return
+
+def create_doip_reply(ta='00', sa='00'):
+    uds = UDS(service="TesterPresent")/UDS()
+    doip = DoIPRawPacket(payload_type=0x8001, payload_length=4 + len(uds),payload_content=bytearray.fromhex(ta+sa))
+
+    #My guess is that we don't need these when we use the sockets. We could ofcourse use scapy send, but then we'd have to convert the source addresses, which makes it unnecesarrily complicated.
+    #udp = UDP(dport=13400, sport=13400)
+    #ip = IP(dst="127.0.0.1")
+
+    #r = send(ip/udp/doip/uds)
+
+    return doip/uds
+
 
 def udp_server():
     try:
@@ -21,7 +48,6 @@ def udp_server():
 
         print("Incoming DoIP message over UDP from ip: %s srcport: %s" % (source[0], source[1]))
         data = binascii.hexlify(packet)
-        print(data)
         print(f"Protocol version: {data[0:2]}")
         if(int(data[0:2]) == 2):
             print("Version is 2!")
@@ -30,7 +56,8 @@ def udp_server():
         if(int(data[4:8]) == 1):
                 print("Payload Type: Vehicle Identification Request")
                 #reply = b'02fd000400000004aaaaaaaaaaaaaaaaaa4010ccccccddddddef'
-                reply = b'02fd000400000021aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa40100036f80140b60036f80140b6ff'
+                #reply = b'02fd000400000021aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa40100036f80140b60036f80140b6ff'
+                reply = b'02fd000400000011aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
                 reply = binascii.unhexlify(reply)
                 sent = s.sendto(reply, source)
                 print(reply)
@@ -44,7 +71,7 @@ def udp_server():
                 print(reply)
                 print(f"Sent {sent} bytes")
 
-
+        decode_doip_message(packet)
         print("====================================")
 
 def tcp_server():
@@ -62,9 +89,9 @@ def tcp_server():
         #    print("connection from %s - %s " % client_address)
 
             while True:
-                data = conn.recv(16)
+                packet = conn.recv(16)
 
-                data = binascii.hexlify(data)
+                data = binascii.hexlify(packet)
                 if(not data):
         #            print("Connection closed")
                     break   #connection close, break receive loop
@@ -91,6 +118,7 @@ def tcp_server():
                         print(f"Sent {sent} bytes")
 
 
+                decode_doip_message(packet)
                 print("====================================")
         finally:
             conn.close()

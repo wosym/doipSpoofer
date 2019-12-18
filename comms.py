@@ -20,30 +20,12 @@ def udp_server():
         packet, source = s.recvfrom(4096)
 
         print("Incoming DoIP message over UDP from ip: %s srcport: %s" % (source[0], source[1]))
-        data = binascii.hexlify(packet)
-        print(f"Protocol version: {data[0:2]}")
-        if(int(data[0:2]) == 2):
-            print("Version is 2!")
-
-        # Check for payload type
-        if(int(data[4:8]) == 1):
-                print("Payload Type: Vehicle Identification Request")
-                reply = b'02fd000400000011aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
-                reply = binascii.unhexlify(reply)
-                sent = s.sendto(reply, source)
-                print(reply)
-                print(f"Sent {sent} bytes")
-
-        elif(int(data[4:8]) == 8001):
-                print("Payload Type: Diagnostic message")
-                reply = b'02fd8002000000051a01e80100'
-                reply = binascii.unhexlify(reply)
-                sent = s.sendto(reply, source)
-                print(reply)
-                print(f"Sent {sent} bytes")
-
         print_doip_message(packet)
-        process_doip_reply(packet)
+        reply = process_doip_reply(packet)
+        print("Replying with:")
+        print_doip_message(reply)
+        sent = s.sendto(reply, source)
+        print(f"Sent {sent} bytes")
         print("====================================")
 
 def tcp_server():

@@ -43,32 +43,14 @@ def tcp_server():
             while True:
                 packet = conn.recv(16)
 
-                data = binascii.hexlify(packet)
-                if(not data):
-                    break   #connection close, break receive loop
-                print("received DoIP message over TCP: %s" %data)
-                if(int(data[0:2]) == 2):
-                    print("Version is 2!")
-
-                # Check for payload type
-                if(int(data[4:8]) == 1):
-                        print("Payload Type: Vehicle Identification Request")
-                        reply = b'02fd000400000021aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa40100036f80140b60036f80140b6ff'
-                        reply = binascii.unhexlify(reply)
-                        sent = conn.sendall(reply)
-                        print(reply)
-                        print(f"Sent {sent} bytes")
-
-                elif(int(data[4:8]) == 8001):
-                        print("Payload Type: Diagnostic message")
-                        reply = b'02fd8002000000051a01e80100'
-                        reply = binascii.unhexlify(reply)
-                        sent = conn.send(reply)
-                        print(reply)
-                        print(f"Sent {sent} bytes")
-
-
+                if(not packet):
+                    break
                 print_doip_message(packet)
+                reply = process_doip_reply(packet)
+                print("Replying with:")
+                print_doip_message(reply)
+                sent = conn.send(reply)
+                print(f"Sent {sent} bytes")
                 print("====================================")
         finally:
             conn.close()

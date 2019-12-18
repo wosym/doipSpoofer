@@ -2,7 +2,7 @@ from doip import *
 from scapy.all import *
 from scapy.contrib.automotive.uds import *
 import simconfig
-
+from binascii import unhexlify
 
 def print_doip_message(msg):
     doip = DoIPRawPacket(msg)
@@ -26,31 +26,38 @@ def create_doip_reply(ta='', sa='', msg_type=0x0000, uds_service="", doip_pl="")
         print(uds_pl)
 
     pl_len = int(len(doip_pl)/2 + len(uds_pl)/2)     #divide by 2 because each byte is 2 characters
-    print(pl_len)
 
-    if(sa == '' and ta== ''):
+    if(not(sa == '' and ta== '')):
         pl_len += 4
-    doip = DoIPRawPacket(payload_type=msg_type, payload_length=pl_len,payload_content=bytearray.fromhex(ta+sa+doip_pl))
+    doip = DoIPRawPacket(payload_type=msg_type, payload_length=pl_len,payload_content=bytearray.fromhex(sa+ta+doip_pl))
 
     return doip/uds_pl
 
 def process_doip_reply(msg):
     msg = DoIPRawPacket(msg)
+    rep = None
     if(not (msg.protocol_version == 0x02 and msg.inverse_version == 0xFD)):
         return None
 
     print("Incoming: " + payload_types[msg.payload_type])
     if msg.payload_type == 0x0000:
         print("TODO: no response implemented for this message yet")
+        rep = bytes(create_doip_reply(msg_type=0x0000))
     elif msg.payload_type == 0x0001:
-        rep = create_doip_reply(msg_type=0x0004, doip_pl=simconfig.veh_ident_repl())
+        rep = bytes(create_doip_reply(msg_type=0x0004, doip_pl=simconfig.veh_ident_repl()))
     elif msg.payload_type == 0x0002:
         print("TODO: no response implemented for this message yet")
+        rep = bytes(create_doip_reply(msg_type=0x0000))
     elif msg.payload_type == 0x0003:
         print("TODO: no response implemented for this message yet")
+        rep = bytes(create_doip_reply(msg_type=0x0000))
     elif msg.payload_type == 0x0004:
         print("TODO: no response implemented for this message yet")
+        rep = bytes(create_doip_reply(msg_type=0x0000))
+    elif msg.payload_type == 0x8001:
+        rep = bytes(create_doip_reply(msg_type=0x8002, sa=str(msg.payload_content[2:4].hex()), ta=str(msg.payload_content[0:2].hex())))
     else:
         print("unknown DoIP message type")
+        rep = bytes(create_doip_reply(msg_type=0x0000))
 
-    return bytes(rep)
+    return rep

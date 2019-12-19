@@ -78,8 +78,12 @@ def process_doip_reply(msg):
             rep[0] = bytes(create_doip_reply(msg_type=0x8002, sa=str(msg.payload_content[2:4].hex()), ta=str(msg.payload_content[0:2].hex()), doip_pl=b'\x01'))
             sleep(0.5)
             #send actual data
-            uds_reply = msg.payload_content[5:] + simconfig.diagnostics_data[msg.payload_content[5:]]
-            rep[1] = bytes(create_doip_reply(msg_type=0x8001, sa=str(msg.payload_content[2:4].hex()), ta=str(msg.payload_content[0:2].hex()), uds_service="ReadDataByIdentifierPositiveResponse" , uds_data=uds_reply))
+            try:
+                uds_reply = msg.payload_content[5:] + simconfig.diagnostics_data[msg.payload_content[5:]]
+                rep[1] = bytes(create_doip_reply(msg_type=0x8001, sa=str(msg.payload_content[2:4].hex()), ta=str(msg.payload_content[0:2].hex()), uds_service="ReadDataByIdentifierPositiveResponse" , uds_data=uds_reply))
+            except KeyError:    #ECU ID not in LUT
+                print("ECU ID not in LUT!")
+                rep[1] = bytes(create_doip_reply(msg_type=0x8001, sa=str(msg.payload_content[2:4].hex()), ta=str(msg.payload_content[0:2].hex()), uds_service="NegativeResponse"))  #TODO: malformed?
         else:
             print("Diagnostic msg not implemented yet")
             rep = bytes(create_doip_reply(msg_type=0x0000))

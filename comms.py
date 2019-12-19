@@ -47,10 +47,17 @@ def tcp_server():
                     break
                 print_doip_message(packet)
                 reply = process_doip_reply(packet)
-                print("Replying with:")
-                print_doip_message(reply)
-                sent = conn.send(reply)
-                print(f"Sent {sent} bytes")
+                if isinstance(reply, list):
+                    for r in reply:
+                        print("Replying with:")
+                        print_doip_message(r)
+                        sent = conn.send(r)
+                        print(f"Sent {sent} bytes")
+                else:
+                    print("Replying with:")
+                    print_doip_message(reply)
+                    sent = conn.send(reply)
+                    print(f"Sent {sent} bytes")
                 print("====================================")
         finally:
             conn.close()

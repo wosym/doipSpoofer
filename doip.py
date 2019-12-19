@@ -23,7 +23,7 @@ This is pretty much a work in progress, so expect breaking changes.
 from scapy.fields import ByteEnumField, IntField, StrLenField, XByteField, XShortEnumField
 from scapy.layers.inet import TCP, UDP
 from scapy.packet import Packet, bind_layers
-
+from time import sleep
 
 
 # payload types according to table 3

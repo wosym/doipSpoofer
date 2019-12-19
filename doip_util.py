@@ -50,8 +50,8 @@ def process_doip_reply(msg):
     if msg.payload_type == 0x0000:
         print("TODO: no response implemented for this message yet")
         rep = bytes(create_doip_reply(msg_type=0x0000))
-    elif msg.payload_type == 0x0001:
-        rep = bytes(create_doip_reply(msg_type=0x0004, doip_pl=simconfig.veh_ident_repl()))
+    elif dmt == "vehicle identification request message":
+        rep = bytes(create_doip_reply(msg_type=0x0004, doip_pl=bytearray.fromhex(simconfig.veh_ident_repl())))
     elif msg.payload_type == 0x0002:
         print("TODO: no response implemented for this message yet")
         rep = bytes(create_doip_reply(msg_type=0x0000))

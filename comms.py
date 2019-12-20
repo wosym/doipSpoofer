@@ -1,3 +1,10 @@
+'''
+'
+' DoIP Spoofer: communications
+'
+' @brief: Communication handling functions for the DoIP spoofer
+' @author   Wouter Symons <wsymons@nalys-group.com>
+'''
 import socket
 import binascii
 import time

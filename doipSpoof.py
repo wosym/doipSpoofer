@@ -1,3 +1,10 @@
+'''
+'
+' DoIP Spoofer
+'
+' @brief: Simulator of a DoIP diagnostics session in a vehicle
+' @author   Wouter Symons <wsymons@nalys-group.com>
+'''
 import threading
 
 from comms import *

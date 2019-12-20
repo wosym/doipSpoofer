@@ -1,3 +1,10 @@
+'''
+'
+' Simulator config
+'
+' @brief: configuration file for the DoIP spoofer
+' @author   Wouter Symons <wsymons@nalys-group.com>
+'''
 #class VehicleConfig():
 VID = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'  #17 bytes
 logical_address = 'bbbb'                    #2 bytes

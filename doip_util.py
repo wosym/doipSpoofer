@@ -1,3 +1,10 @@
+'''
+'
+' DoIP util functions
+'
+' @brief: DoIP util functions that aid in processing DoIP messages
+' @author   Wouter Symons <wsymons@nalys-group.com>
+'''
 from doip import *
 from scapy.all import *
 from scapy.contrib.automotive.uds import *

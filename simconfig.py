@@ -1,5 +1,12 @@
+'''
+'
+' DoIP Spoofer config
+'
+' @brief: Configuration file of DoIP spoofer
+' @author   Wouter Symons <wsymons@nalys-group.com>
+'''
 #class VehicleConfig():
-VID = 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'  #17 bytes
+VID = '5741555a5a5a4634304741303231313637'  #17 bytes
 logical_address = 'bbbb'                    #2 bytes
 EID = 'cccccccccccc'                        #6 bytes
 GID = 'dddddddddddd'                        #6 bytes

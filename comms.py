@@ -1,3 +1,10 @@
+'''
+'
+' DoIP Spoofer: communications
+'
+' @brief: Connection handling functions for the DoIPspoofer
+' @author   Wouter Symons <wsymons@nalys-group.com>
+'''
 import socket
 import binascii
 import time
@@ -19,13 +26,15 @@ def udp_server():
     while True:
         packet, source = s.recvfrom(4096)
 
-        print("Incoming DoIP message over UDP from ip: %s srcport: %s" % (source[0], source[1]))
+        print("\u001b[32mIncoming DoIP message over UDP from ip: %s srcport: %s" % (source[0], source[1]))
         print_doip_message(packet)
         reply = process_doip_reply(packet)
+        print("\u001b[31m")
         print("Replying with:")
         print_doip_message(reply)
         sent = s.sendto(reply, source)
         print(f"Sent {sent} bytes")
+        print("\u001b[0m")
         print("====================================")
 
 def tcp_server():
@@ -45,8 +54,11 @@ def tcp_server():
 
                 if(not packet):
                     break
+
+                print("\u001b[32mReceived message:")
                 print_doip_message(packet)
                 reply = process_doip_reply(packet)
+                print("\u001b[31m")
                 if isinstance(reply, list):
                     for r in reply:
                         print("Replying with:")
@@ -58,6 +70,7 @@ def tcp_server():
                     print_doip_message(reply)
                     sent = conn.send(reply)
                     print(f"Sent {sent} bytes")
+                print("\u001b[0m")
                 print("====================================")
         finally:
             conn.close()
